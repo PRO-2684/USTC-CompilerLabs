@@ -31,6 +31,9 @@ syntax_tree_node *node(const char *node_name, int children_num, ...);
 /* FIXME: Complete this definition.
    Hint: See pass_node(), node(), and syntax_tree.h.
          Use forward declaring. */
+%code requires {
+    #include "syntax_tree.h"
+}
 %union {
     syntax_tree_node *node;
 }
