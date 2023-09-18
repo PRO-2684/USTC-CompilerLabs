@@ -61,6 +61,8 @@ float          {pos_start = pos_end; pos_end += 5; pass_node(yytext); return FLO
 \d+ 	          {pos_start = pos_end; pos_end += strlen(yytext); pass_node(yytext); return INTEGER;}
 \d+\.|\d*\.\d+ {pos_start = pos_end; pos_end += strlen(yytext); pass_node(yytext); return FLOATPOINT;}
 \/\*.*\*\/     {pos_start = pos_end; pos_end += strlen(yytext);}
+ /* NEWLINE */
+\n             {pos_start = pos_end = 1; lines++;}
  /* COMMENT */
 "/*"([^\*]|(\*)*[^\*/])*(\*)*"*/" {
      pos_start = pos_end;
@@ -74,7 +76,7 @@ float          {pos_start = pos_end; pos_end += 5; pass_node(yytext); return FLO
           }
      }
 }
-
+ /* NO MATCH */
 . { pos_start = pos_end; pos_end++; return ERROR; }
 
  /****请在此补全所有flex的模式与动作  end******/
