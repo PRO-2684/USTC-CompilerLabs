@@ -38,7 +38,7 @@ syntax_tree_node *node(const char *node_name, int children_num, ...);
 /* FIXME: Your tokens here. */
 %token <node> ERROR
 %token <node> ID
-%token <node> ADD SUB MUL DIV GT GEQ LT LEQ EQ NEQ // Operators
+%token <node> ADD SUB MUL DIV GT GEQ LT LEQ EQ NEQ ASSIGN // Operators
 %token <node> INTEGER FLOATPOINT // Literal values
 %token <node> INT FLOAT VOID IF ELSE WHILE RETURN  // C keywords
 %token <node> SEMICOLON COMMA LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE // Other symbols: ; , ( ) [ ] { }
@@ -88,7 +88,7 @@ selection-stmt: IF LPAREN expression RPAREN statement { $$ = node("selection-stm
 iteration-stmt: WHILE LPAREN expression RPAREN statement { $$ = node("iteration-stmt", 5, $1, $2, $3, $4, $5); };
 return-stmt: RETURN SEMICOLON { $$ = node("return-stmt", 1, $1); }
     | RETURN expression SEMICOLON { $$ = node("return-stmt", 3, $1, $2, $3); };
-expression: var EQ expression { $$ = node("expression", 3, $1, $2, $3); }
+expression: var ASSIGN expression { $$ = node("expression", 3, $1, $2, $3); }
     | simple-expression { $$ = node("expression", 1, $1); };
 var: ID { $$ = node("var", 1, $1); }
     | ID LBRACKET expression RBRACKET { $$ = node("var", 4, $1, $2, $3, $4); };
