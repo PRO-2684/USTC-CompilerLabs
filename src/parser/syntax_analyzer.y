@@ -28,7 +28,7 @@ void yyerror(const char *s);
 syntax_tree_node *node(const char *node_name, int children_num, ...);
 %}
 
-/* FIXME: Complete this definition.
+/* DONE: Complete this definition.
    Hint: See pass_node(), node(), and syntax_tree.h.
          Use forward declaring. */
 %code requires {
@@ -38,7 +38,7 @@ syntax_tree_node *node(const char *node_name, int children_num, ...);
     syntax_tree_node *node;
 }
 
-/* FIXME: Your tokens here. */
+/* DONE: Your tokens here. */
 %token <node> ERROR
 %token <node> ID
 %token <node> ADD SUB MUL DIV GT GEQ LT LEQ EQ NEQ ASSIGN // Operators
@@ -50,7 +50,7 @@ syntax_tree_node *node(const char *node_name, int children_num, ...);
 %start program
 
 %%
-/* FIXME: Your rules here. */
+/* DONE: Your rules here. */
 
 /* Example:
 program: declaration-list {$$ = node( "program", 1, $1); gt->root = $$;}
