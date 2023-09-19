@@ -5,13 +5,13 @@
 
 if [[ $# -lt 1 ]]; then
     echo "usage: ./eval_lab1.sh   <input> [<summary>]"
-    echo "       <input> can be one of 'easy', 'normal', 'hard', and 'testcases_general'."
+    echo "       <input> can be one of 'easy', 'normal', 'hard', 'lunatic' and 'testcases_general'."
     echo "       <summary> can be one of 'no', 'yes', and 'verbose'. the default value is 'no'"
     exit 1
 fi
 CUR_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 TESTCASE="${1:-testcase}"
-if [[ $TESTCASE == 'easy' || $TESTCASE == 'normal' || $TESTCASE == 'hard' ]]; then
+if [[ $TESTCASE == 'easy' || $TESTCASE == 'normal' || $TESTCASE == 'hard' || $TESTCASE == 'lunatic' ]]; then
     TESTCASE_DIR="$CUR_DIR/input/$TESTCASE"
 elif [[ $TESTCASE == 'testcases_general' ]]; then
     TESTCASE_DIR="$CUR_DIR/../$TESTCASE"
