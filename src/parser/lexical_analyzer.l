@@ -24,10 +24,6 @@ void pass_node(char *text){
 %%
  /* DONE: */
  /* two cases for you, pass_node will send flex's token to bison */
- /* REMOVE SPACES */
-[ \t] {pos_start = pos_end; pos_end += 1;}
- /* NEWLINE */
-\n             {pos_start = pos_end = 1; lines++;}
  /* OPERATORS */
 \+ 	{pos_start = pos_end; pos_end++; pass_node(yytext); return ADD;}
 \- 	{pos_start = pos_end; pos_end++; pass_node(yytext); return SUB;}
@@ -63,6 +59,8 @@ float          {pos_start = pos_end; pos_end += 5; pass_node(yytext); return FLO
 [0-9]+ 	          {pos_start = pos_end; pos_end += strlen(yytext); pass_node(yytext); return INTEGER;}
 [0-9]+\.|[0-9]*\.[0-9]+ {pos_start = pos_end; pos_end += strlen(yytext); pass_node(yytext); return FLOATPOINT;}
 \/\*.*\*\/     {pos_start = pos_end; pos_end += strlen(yytext);}
+ /* NEWLINE */
+\n             {pos_start = pos_end = 1; lines++;}
  /* COMMENT */
 "/*"([^\*]|(\*)*[^\*/])*(\*)*"*/" {
      pos_start = pos_end;
@@ -77,7 +75,7 @@ float          {pos_start = pos_end; pos_end += 5; pass_node(yytext); return FLO
      }
 }
  /* NO MATCH */
-. { pos_start = pos_end; pos_end++; return ERROR; }
+ . { pos_start = pos_end; pos_end++; }
 
  /****请在此补全所有flex的模式与动作  end******/
 %%
