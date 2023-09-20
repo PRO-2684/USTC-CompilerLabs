@@ -58,7 +58,6 @@ float          {pos_start = pos_end; pos_end += 5; pass_node(yytext); return FLO
  /* LITERAL */
 [0-9]+ 	          {pos_start = pos_end; pos_end += strlen(yytext); pass_node(yytext); return INTEGER;}
 [0-9]+\.|[0-9]*\.[0-9]+ {pos_start = pos_end; pos_end += strlen(yytext); pass_node(yytext); return FLOATPOINT;}
-\/\*.*\*\/     {pos_start = pos_end; pos_end += strlen(yytext);}
  /* NEWLINE */
 \n             {pos_start = pos_end = 1; lines++;}
  /* COMMENT */
