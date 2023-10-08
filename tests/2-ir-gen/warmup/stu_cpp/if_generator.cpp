@@ -23,13 +23,27 @@ int main() {
     auto builder = new IRBuilder(nullptr, module);
     // 从 Module 处取出 32 位整形 type 的实例
     Type *Int32Type = module->get_int32_type();
+    Type *FloatType = module->get_float_type();
 
     // main()
     auto mainFun = Function::create(FunctionType::get(Int32Type, {}), "main", module);
     auto bb = BasicBlock::create(module, "entry", mainFun);
     builder->set_insert_point(bb);
-    auto retAlloca = builder->create_alloca(Int32Type);
-    builder->create_store(CONST_INT(0), retAlloca); // main 函数默认 ret 0
+    // float a = 5.555
+    auto aAlloca = builder->create_alloca(FloatType);
+    builder->create_store(CONST_FP(5.555), aAlloca);
+    // if (a > 1) statement
+    auto aLoad = builder->create_load(aAlloca);
+    auto icmp = builder->create_fcmp_gt(aLoad, CONST_FP(1));
+    auto trueBB = BasicBlock::create(module, "trueBB", mainFun);
+    auto falseBB = BasicBlock::create(module, "falseBB", mainFun);
+    builder->create_cond_br(icmp, trueBB, falseBB);
+    builder->set_insert_point(trueBB);
+    // True
+    builder->create_ret(CONST_INT(233));
+    // False
+    builder->set_insert_point(falseBB);
+    builder->create_ret(CONST_INT(0));
 
     // 输出 module 中的所有 IR 指令
     std::cout << module->print();
