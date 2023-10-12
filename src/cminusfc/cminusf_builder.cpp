@@ -131,7 +131,7 @@ Value* CminusfBuilder::visit(ASTFunDeclaration &node) {
         arg++;
     }
     node.compound_stmt->accept(*this);
-    if (builder->get_insert_block()->get_terminator() == nullptr) {
+    if (builder->get_insert_block()->is_terminated()) {
         if (context.func->get_return_type()->is_void_type())
             builder->create_void_ret();
         else if (context.func->get_return_type()->is_float_type())
@@ -175,7 +175,7 @@ Value* CminusfBuilder::visit(ASTCompoundStmt &node) {
     context.is_returned = false;
     for (auto &stmt : node.statement_list) {
         stmt->accept(*this);
-        if (context.is_returned)
+        if (builder->get_insert_block()->is_terminated())
             break;
     }
     context.is_returned_record = context.is_returned;
