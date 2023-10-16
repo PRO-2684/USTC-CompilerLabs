@@ -106,13 +106,9 @@ class CminusfBuilder : public ASTVisitor {
     std::unique_ptr<Module> module;
 
     struct {
-        BasicBlock* curr_block;
-        BasicBlock* return_block;
-        Value* return_alloca;
-        Function *func = nullptr; // function that is being built
-        Value* expression = nullptr;
         unsigned label = 0;
-        bool is_returned = false;
-        bool is_returned_record = false;
+        Function *func = nullptr; // function that is being built
+        Value *value = nullptr;
+        bool lvalue = 0;
     } context;
 };
