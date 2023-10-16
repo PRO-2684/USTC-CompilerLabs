@@ -11,7 +11,6 @@ Type *INT32_T;
 Type *INT32PTR_T;
 Type *FLOAT_T;
 Type *FLOATPTR_T;
-// Zeros
 
 /*
  * use CMinusfBuilder::Scope to construct scopes
@@ -47,23 +46,23 @@ Value* CminusfBuilder::visit(ASTNum &node) {
 
 Value* CminusfBuilder::visit(ASTVarDeclaration &node) {
     Type *var_type;
-    if(node.num == nullptr){
+    if (node.num == nullptr) {
         if(node.type == TYPE_INT)
             var_type = module->get_int32_type();
         else
             var_type = module->get_float_type();
-    } else{
-        if(node.type == TYPE_INT)
+    } else {
+        if (node.type == TYPE_INT)
             var_type = ArrayType::get(module->get_int32_type(), node.num->i_val);
         else
             var_type = ArrayType::get(module->get_float_type(), node.num->f_val);
     }
-    Value *g_var;
-    if(scope.in_global() == 1)
-        g_var = GlobalVariable::create(node.id, module.get(), var_type, false, ConstantZero::get(var_type, module.get()));
+    Value *new_var;
+    if(scope.in_global())
+        new_var = GlobalVariable::create(node.id, module.get(), var_type, false, ConstantZero::get(var_type, module.get()));
     else
-        g_var = builder->create_alloca(var_type);
-    scope.push(node.id, g_var);
+        new_var = builder->create_alloca(var_type);
+    scope.push(node.id, new_var);
     return nullptr;
 }
 
@@ -71,6 +70,7 @@ Value* CminusfBuilder::visit(ASTFunDeclaration &node) {
     FunctionType *fun_type;
     Type *ret_type;
     std::vector<Type *> param_types;
+    char label_name[32];
     if (node.type == TYPE_INT)
         ret_type = INT32_T;
     else if (node.type == TYPE_FLOAT)
@@ -82,12 +82,12 @@ Value* CminusfBuilder::visit(ASTFunDeclaration &node) {
         if (param->isarray) {
             if (param->type == TYPE_INT)
                 param_types.push_back(INT32PTR_T);
-            else if (param->type == TYPE_FLOAT)
+            else
                 param_types.push_back(FLOATPTR_T);
         } else {
             if (param->type == TYPE_INT)
                 param_types.push_back(INT32_T);
-            else if (param->type == TYPE_FLOAT)
+            else
                 param_types.push_back(FLOAT_T);
         }
     }
@@ -96,7 +96,8 @@ Value* CminusfBuilder::visit(ASTFunDeclaration &node) {
     auto func = Function::create(fun_type, node.id, module.get());
     scope.push(node.id, func);
     context.func = func;
-    auto funBB = BasicBlock::create(module.get(), "entry", func);
+    GEN_LABEL(label_name);
+    auto funBB = BasicBlock::create(module.get(), label_name, func);
     builder->set_insert_point(funBB);
     scope.enter();
     std::vector<Value *> args;
@@ -104,15 +105,15 @@ Value* CminusfBuilder::visit(ASTFunDeclaration &node) {
         args.push_back(&arg);
     }
     // auto arg = func->get_args().begin();
-    for (long unsigned int i = 0; i < node.params.size(); ++i) {
+    for (unsigned long i = 0; i < node.params.size(); ++i) {
         Type *arg_type;
-        if(node.params[i]->isarray == 1){
-            if(node.params[i]->type == TYPE_INT)
+        if(node.params[i]->isarray) {
+            if (node.params[i]->type == TYPE_INT)
                 arg_type = INT32PTR_T;
             else
                 arg_type = FLOATPTR_T;
         } else {
-            if(node.params[i]->type == TYPE_INT)
+            if (node.params[i]->type == TYPE_INT)
                 arg_type = INT32_T;
             else
                 arg_type = FLOAT_T;
@@ -183,7 +184,6 @@ Value* CminusfBuilder::visit(ASTExpressionStmt &node) {
 }
 
 Value* CminusfBuilder::visit(ASTSelectionStmt &node) {
-    node.expression->accept(*this);
     char label_name[32];
     // Create basic blocks
     GEN_LABEL(label_name);
@@ -192,8 +192,9 @@ Value* CminusfBuilder::visit(ASTSelectionStmt &node) {
     auto falseBB = BasicBlock::create(module.get(), label_name, context.func);
     GEN_LABEL(label_name);
     auto endBB = BasicBlock::create(module.get(), label_name, context.func);
+    node.expression->accept(*this);
     // Create comparison to zero
-    if(context.value->get_type()->is_integer_type())
+    if (context.value->get_type()->is_integer_type())
         context.value = builder->create_icmp_ne(context.value, CONST_INT(0));
     else
         context.value = builder->create_fcmp_ne(context.value, CONST_FP(0));
@@ -223,11 +224,11 @@ Value* CminusfBuilder::visit(ASTSelectionStmt &node) {
 
 Value* CminusfBuilder::visit(ASTIterationStmt &node) {
     char label_name[32];
-    GEN_LABEL(label_name); // Condition
+    GEN_LABEL(label_name); // Condition (test)
     auto condBB = BasicBlock::create(module.get(), label_name, context.func);
-    GEN_LABEL(label_name); // Iteration body
+    GEN_LABEL(label_name); // Iteration body (true)
     auto bodyBB = BasicBlock::create(module.get(), label_name, context.func);
-    GEN_LABEL(label_name); // End
+    GEN_LABEL(label_name); // End (false)
     auto endBB = BasicBlock::create(module.get(), label_name, context.func);
 
     if (!builder->get_insert_block()->is_terminated())
@@ -335,11 +336,12 @@ Value* CminusfBuilder::visit(ASTAssignExpression &node) {
 
     if (store->get_type()->get_pointer_element_type() != var_type) {
         if (var_type->is_integer_type())
-            store = builder->create_sitofp(store, FLOAT_T);
+            var_alloca = builder->create_sitofp(var_alloca, FLOAT_T);
         else
-            store = builder->create_fptosi(store, INT32_T);
+            var_alloca = builder->create_fptosi(var_alloca, INT32_T);
     }
     builder->create_store(var_alloca, store);
+    context.value = var_alloca;
     return nullptr;
 }
 
