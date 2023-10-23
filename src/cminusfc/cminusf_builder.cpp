@@ -49,15 +49,15 @@ Value* CminusfBuilder::visit(ASTVarDeclaration &node) {
     Type *varType;
     if (node.num == nullptr) {
         if (node.type == TYPE_INT) {
-            varType = module->get_int32_type();
+            varType = INT32_T;
         } else {
-            varType = module->get_float_type();
+            varType = FLOAT_T;
         }
     } else {
         if (node.type == TYPE_INT) {
-            varType = ArrayType::get(module->get_int32_type(), node.num->i_val);
+            varType = ArrayType::get(INT32_T, node.num->i_val);
         } else {
-            varType = ArrayType::get(module->get_float_type(), node.num->i_val);
+            varType = ArrayType::get(FLOAT_T, node.num->i_val);
         }
     }
     Value *newVar;
