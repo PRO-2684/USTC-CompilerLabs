@@ -2,7 +2,7 @@
 
 #define CONST_FP(num) ConstantFP::get((float)num, module.get())
 #define CONST_INT(num) ConstantInt::get(num, module.get())
-#define GEN_LABEL() sprintf(labelName, "_generated_label_%08x", context.label++)
+#define GEN_LABEL() sprintf(labelName, "%08x", context.label++)
 
 // Types
 Type *VOID_T;
@@ -57,7 +57,7 @@ Value* CminusfBuilder::visit(ASTVarDeclaration &node) {
         if (node.type == TYPE_INT) {
             varType = ArrayType::get(module->get_int32_type(), node.num->i_val);
         } else {
-            varType = ArrayType::get(module->get_float_type(), node.num->f_val);
+            varType = ArrayType::get(module->get_float_type(), node.num->i_val);
         }
     }
     Value *newVar;
@@ -107,7 +107,6 @@ Value* CminusfBuilder::visit(ASTFunDeclaration &node) {
     for (auto &arg : func->get_args()) {
         args.push_back(&arg);
     }
-    // auto arg = func->get_args().begin();
     for (unsigned long i = 0; i < node.params.size(); ++i) {
         Type *argType;
         int flag = (node.params[i]->isarray << 1) + (node.params[i]->type == TYPE_INT);
