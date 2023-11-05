@@ -58,7 +58,8 @@ void translate_main(CodeGen *codegen) {
     codegen->append_inst("addi.w $t1, $zero, 1");
     // DONE: 使用 slt 指令比较, 并将结果写入 %op0 对应的内存空间中
     codegen->append_inst("slt $t2, $t1, $t0");
-    codegen->append_inst("st.d", "$t2", "$fp", std::to_string(offset_map["%op0"]));
+    codegen->append_inst("st.d",
+                         {"$t2", "$fp", std::to_string(offset_map["%op0"])});
 
     /* %op1 = zext i1 %op0 to i32 */
     codegen->append_inst("%op1 = zext i1 %op0 to i32", ASMInstruction::Comment);
@@ -67,8 +68,10 @@ void translate_main(CodeGen *codegen) {
     offset_map["%op1"] = -32; // DONE: 请填空
     // DONE: 获得 %op0 的值, 然后进行转换, 最后将结果写入 %op1
     // 思考: 怎么转换? 需不需要显式地使用某些指令转换?
-    codegen->append_inst("ld.d", "$t0", "$fp", std::to_string(offset_map["%op0"]));
-    codegen->append_inst("st.d", "$t0", "$fp", std::to_string(offset_map["%op1"]));
+    codegen->append_inst("ld.d",
+                         {"$t0", "$fp", std::to_string(offset_map["%op0"])});
+    codegen->append_inst("st.d",
+                         {"$t0", "$fp", std::to_string(offset_map["%op1"])});
 
     /* %op2 = icmp ne i32 %op1, 0 */
     codegen->append_inst("%op2 = icmp ne i32 %op1, 0", ASMInstruction::Comment);
@@ -77,17 +80,20 @@ void translate_main(CodeGen *codegen) {
     // DONE: 获得 %op1 的值, 然后进行比较, 最后将结果写入 %op2
     // 思考: 如何比较? 能否不使用跳转指令计算结果?
     // 提示: 尝试使用 xor/xori 和 slt/sltu/slti/sltui 计算比较结果
-    codegen->append_inst("ld.d", "$t0", "$fp", std::to_string(offset_map["%op1"]));
+    codegen->append_inst("ld.d",
+                         {"$t0", "$fp", std::to_string(offset_map["%op1"])});
     codegen->append_inst("xori $t1, $t0, 0");
     codegen->append_inst("sltu $t2, $zero, $t1");
-    codegen->append_inst("st.d", "$t2", "$fp", std::to_string(offset_map["%op2"]));
+    codegen->append_inst("st.d",
+                         {"$t2", "$fp", std::to_string(offset_map["%op2"])});
 
     /* br i1 %op2, label %label3, label %label4 */
     codegen->append_inst("br i1 %op2, label %label3, label %label4",
                          ASMInstruction::Comment);
     // DONE: 获得 %op2 的值, 并根据 %op2 的值跳转到 label3 或者 label4
     // 提示: 汇编中对应的标签分别为 .main_label3 和 .main_label4
-    codegen->append_inst("ld.d", "$t0", "$fp", std::to_string(offset_map["%op2"]));
+    codegen->append_inst("ld.d",
+                         {"$t0", "$fp", std::to_string(offset_map["%op2"])});
     codegen->append_inst("beqz $t0, .main_label4");
     codegen->append_inst("b .main_label3");
 
