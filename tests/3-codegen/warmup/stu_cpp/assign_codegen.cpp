@@ -23,7 +23,7 @@ int main() {
     return 0;
 }
 
-// FIXME: 按照提示补全
+// DONE: 按照提示补全
 void translate_main(CodeGen *codegen) {
     std::unordered_map<std::string, int> offset_map;
 
@@ -59,12 +59,10 @@ void translate_main(CodeGen *codegen) {
     // - %op0 的偏移量是多少字节? (-24)
     // - 数组的大小是多少字节? (40)
     // - 数组的偏移量是多少字节? (-64)
-    offset_map["%op0"] = -24;  // FIXME: 请填空
-    offset_map["array"] = -64; // FIXME: 请填空
-    codegen->append_inst("addi.d",
-                         {"$t0", "$fp", std::to_string(offset_map["array"])});
-    codegen->append_inst("st.d",
-                         {"$t0", "$fp", std::to_string(offset_map["%op0"])});
+    offset_map["%op0"] = -24;  // DONE: 请填空
+    offset_map["array"] = -64; // DONE: 请填空
+    codegen->append_inst("addi.d", {"$t0", "$fp", std::to_string(offset_map["array"])});
+    codegen->append_inst("st.d", {"$t0", "$fp", std::to_string(offset_map["%op0"])});
 
     /* %op1 = getelementptr [10 x i32], [10 x i32]* %op0, i32 0, i32 0 */
     codegen->append_inst(
@@ -73,21 +71,17 @@ void translate_main(CodeGen *codegen) {
     // 将 gep 的值写入 %op1 对应的内存空间中
     // 你可以手动计算 gep 的值, 或者使用指令计算 gep 的值
     // 你需要思考 %op1 的偏移量是多少字节
-    offset_map["%op1"] = -72; // FIXME: 请填空
+    offset_map["%op1"] = -72; // DONE: 请填空
     // 获得数组的地址, 将其写入 $t0 中
-    codegen->append_inst("ld.d",
-                         {"$t0", "$fp", std::to_string(offset_map["%op0"])});
-    // FIXME: 计算 %op1 的值, 并将其写入 %op1 对应的内存空间中
-    codegen->append_inst("addi.d",
-                         {"$t1", "$t0", "0"});
-    codegen->append_inst("st.d",
-                         {"$t1", "$fp", std::to_string(offset_map["%op1"])});
+    codegen->append_inst("ld.d", {"$t0", "$fp", std::to_string(offset_map["%op0"])});
+    // DONE: 计算 %op1 的值, 并将其写入 %op1 对应的内存空间中
+    codegen->append_inst("addi.d", {"$t1", "$t0", "0"});
+    codegen->append_inst("st.d", {"$t1", "$fp", std::to_string(offset_map["%op1"])});
 
     /* store i32 10, i32* %op1 */
     codegen->append_inst("store i32 10, i32* %op1", ASMInstruction::Comment);
     // 将 10 写入数组 (%op1 指向的空间) 中, 需要先获得 %op1 的值
-    codegen->append_inst("ld.d",
-                         {"$t0", "$fp", std::to_string(offset_map["%op1"])});
+    codegen->append_inst("ld.d", {"$t0", "$fp", std::to_string(offset_map["%op1"])});
     codegen->append_inst("addi.w $t1, $zero, 10");
     codegen->append_inst("st.w $t1, $t0, 0");
 
@@ -98,73 +92,54 @@ void translate_main(CodeGen *codegen) {
     // 将 gep 的值写入 %op2 对应的内存空间中
     // 你可以手动计算 gep 的值, 或者使用指令计算 gep 的值
     // 你需要思考 %op2 的偏移量是多少字节
-    offset_map["%op2"] = -80; // FIXME: 请填空
+    offset_map["%op2"] = -80; // DONE: 请填空
     // 获得数组的地址, 将其写入 $t0 中
-    codegen->append_inst("ld.d",
-                         {"$t0", "$fp", std::to_string(offset_map["%op0"])});
-    // FIXME: 计算 gep 的值, 并将其写入 %op2 对应的内存空间中
-    codegen->append_inst("addi.d",
-                         {"$t1", "$t0", "4"});
-    codegen->append_inst("st.d",
-                         {"$t1", "$fp", std::to_string(offset_map["%op2"])});
+    codegen->append_inst("ld.d", {"$t0", "$fp", std::to_string(offset_map["%op0"])});
+    // DONE: 计算 gep 的值, 并将其写入 %op2 对应的内存空间中
+    codegen->append_inst("addi.d", {"$t1", "$t0", "4"});
+    codegen->append_inst("st.d", {"$t1", "$fp", std::to_string(offset_map["%op2"])});
 
     /* %op3 = load i32, i32* %op1 */
     codegen->append_inst("%op3 = load i32, i32* %op1", ASMInstruction::Comment);
     // 将 %op1 指向的空间中存储的值写入 %op3 对应的内存空间中
-    offset_map["%op3"] = -84; // FIXME: 请填空
-    // FIXME: 先获得 %op1 的值, 然后获得 %op1 指向的空间的值, 最后将这个值写入
+    offset_map["%op3"] = -84; // DONE: 请填空
+    // DONE: 先获得 %op1 的值, 然后获得 %op1 指向的空间的值, 最后将这个值写入
     // %op3 对应的内存空间中
-    codegen->append_inst("ld.d",
-                        {"$t0", "$fp", std::to_string(offset_map["%op1"])});
-    codegen->append_inst("ld.w",
-                        {"$t1", "$t0", "0"});
-    codegen->append_inst("st.w",
-                        {"$t1", "$fp", std::to_string(offset_map["%op3"])});
+    codegen->append_inst("ld.d", {"$t0", "$fp", std::to_string(offset_map["%op1"])});
+    codegen->append_inst("ld.w", {"$t1", "$t0", "0"});
+    codegen->append_inst("st.w", {"$t1", "$fp", std::to_string(offset_map["%op3"])});
 
     /* %op4 = mul i32 %op3, 3 */
     codegen->append_inst("%op4 = mul i32 %op3, 3", ASMInstruction::Comment);
-    offset_map["%op4"] = -88; // FIXME: 请填空
-    // FIXME: 先获得 %op3 的值, 然后将其乘以 3, 最后将结果写入 %op4 对应的内存空
+    offset_map["%op4"] = -88; // DONE: 请填空
+    // DONE: 先获得 %op3 的值, 然后将其乘以 3, 最后将结果写入 %op4 对应的内存空
     // 间中
-    codegen->append_inst("ld.w",
-                        {"$t0", "$fp", std::to_string(offset_map["%op3"])});
-    codegen->append_inst("addi.w",
-                        {"$t1", "$zero", "3"});
-    codegen->append_inst("mul.w",
-                        {"$t2", "$t0", "$t1"});
-    codegen->append_inst("st.w",
-                        {"$t2", "$fp", std::to_string(offset_map["%op4"])});
+    codegen->append_inst("ld.w", {"$t0", "$fp", std::to_string(offset_map["%op3"])});
+    codegen->append_inst("addi.w", {"$t1", "$zero", "3"});
+    codegen->append_inst("mul.w", {"$t2", "$t0", "$t1"});
+    codegen->append_inst("st.w", {"$t2", "$fp", std::to_string(offset_map["%op4"])});
 
     /* store i32 %op4, i32* %op2 */
     codegen->append_inst("store i32 %op4, i32* %op2", ASMInstruction::Comment);
     // 将 %op4 的值写入 %op2 指向的空间中
-    // FIXME: 先获得 %op4 的值, 然后将其写入 %op2 指向的空间中
-    codegen->append_inst("ld.w",
-                        {"$t0", "$fp", std::to_string(offset_map["%op4"])});
-    codegen->append_inst("ld.d",
-                        {"$t1", "$fp", std::to_string(offset_map["%op2"])});
-    codegen->append_inst("ld.w",
-                        {"$t2", "$t1", "0"});
-    codegen->append_inst("st.w",
-                        {"$t0", "$t2", "0"});
+    // DONE: 先获得 %op4 的值, 然后将其写入 %op2 指向的空间中
+    codegen->append_inst("ld.w", {"$t0", "$fp", std::to_string(offset_map["%op4"])});
+    codegen->append_inst("ld.d", {"$t1", "$fp", std::to_string(offset_map["%op2"])});
+    codegen->append_inst("st.w", {"$t0", "$t1", "0"});
 
     /* %op5 = load i32, i32* %op2 */
     // 将 %op2 指向的空间中存储的值写入 %op5 对应的内存空间中
-    offset_map["%op5"] = -92; // FIXME: 请填空
-    // FIXME: 先获得 %op2 的值, 然后获得 %op2 指向的空间的值, 最后将这个值写入
+    offset_map["%op5"] = -92; // DONE: 请填空
+    // DONE: 先获得 %op2 的值, 然后获得 %op2 指向的空间的值, 最后将这个值写入
     // %op5 对应的内存空间中
-    codegen->append_inst("ld.d",
-                        {"$t0", "$fp", std::to_string(offset_map["%op2"])});
-    codegen->append_inst("ld.w",
-                        {"$t1", "$t0", "0"});
-    codegen->append_inst("st.w",
-                        {"$t1", "$fp", std::to_string(offset_map["%op5"])});
+    codegen->append_inst("ld.d", {"$t0", "$fp", std::to_string(offset_map["%op2"])});
+    codegen->append_inst("ld.w", {"$t1", "$t0", "0"});
+    codegen->append_inst("st.w", {"$t1", "$fp", std::to_string(offset_map["%op5"])});
 
     /* ret i32 %op5 */
     codegen->append_inst("ret i32 %op5", ASMInstruction::Comment);
-    // FIXME: 将 %op5 的值写入 $a0 中
-    codegen->append_inst("ld.w",
-                        {"$a0", "$fp", std::to_string(offset_map["%op5"])});
+    // DONE: 将 %op5 的值写入 $a0 中
+    codegen->append_inst("ld.w", {"$a0", "$fp", std::to_string(offset_map["%op5"])});
     // 思考: 为什么不在这里 jr $ra, 而是跳转到 main_exit?
     codegen->append_inst("b main_exit");
 
