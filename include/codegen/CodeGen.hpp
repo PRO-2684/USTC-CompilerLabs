@@ -3,6 +3,7 @@
 #include "ASMInstruction.hpp"
 #include "Module.hpp"
 #include "Register.hpp"
+#include <unordered_map>
 
 class CodeGen {
   public:
