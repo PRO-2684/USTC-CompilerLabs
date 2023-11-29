@@ -1,12 +1,5 @@
-#pragma once
-
 #include "FuncInfo.hpp"
 #include "Function.hpp"
-#include "PassManager.hpp"
-#include "logging.hpp"
-
-#include <deque>
-#include <unordered_map>
 
 void FuncInfo::run() {
     for (auto &f : m_->get_functions()) {
