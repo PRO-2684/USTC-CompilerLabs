@@ -2,7 +2,7 @@
 
 void LogWriter::operator<(const LogStream &stream) {
     std::ostringstream msg;
-    msg << stream.sstream_->rdbuf();
+    msg << stream.sstream_.rdbuf();
     output_log(msg);
 }
 
