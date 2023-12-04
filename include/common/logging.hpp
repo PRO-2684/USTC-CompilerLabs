@@ -54,20 +54,17 @@ private:
 class LogStream
 {
 public:
-    LogStream() { sstream_ = new std::stringstream(); }
-    ~LogStream() = default;
-
     template <typename T>
     LogStream &operator<<(const T &val) noexcept
     {
-        (*sstream_) << val;
+        sstream_ << val;
         return *this;
     }
 
     friend class LogWriter;
 
 private:
-    std::stringstream *sstream_;
+    std::stringstream sstream_{};
 };
 
 std::string level2string(LogLevel level);
