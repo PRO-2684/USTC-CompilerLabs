@@ -46,6 +46,7 @@ class CodeGen {
     void store_from_greg(Value *, const Reg &);
     void store_from_freg(Value *, const FReg &);
 
+    void insert_phi(Instruction *ins);
     void gen_prologue();
     void gen_ret();
     void gen_br();

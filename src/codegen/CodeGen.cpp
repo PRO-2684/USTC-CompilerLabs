@@ -15,16 +15,16 @@ void CodeGen::allocate() {
 
     // 为指令结果分配栈空间
     for (auto& bb : context.func->get_basic_blocks()) {
-        for (auto& instr : bb.get_instructions()) {
+        for (auto& ins : bb.get_instructions()) {
             // 每个非 void 的定值都分配栈空间
-            if (not instr.is_void()) {
-                auto size = instr.get_type()->get_size();
+            if (not ins.is_void()) {
+                auto size = ins.get_type()->get_size();
                 offset = ALIGN(offset + size, size);
-                context.offset_map[&instr] = -static_cast<int>(offset);
+                context.offset_map[&ins] = -static_cast<int>(offset);
             }
             // alloca 的副作用：分配额外空间
-            if (instr.is_alloca()) {
-                auto* alloca_inst = static_cast<AllocaInst*>(&instr);
+            if (ins.is_alloca()) {
+                auto* alloca_inst = static_cast<AllocaInst*>(&ins);
                 auto alloc_size = alloca_inst->get_alloca_type()->get_size();
                 offset += alloc_size;
             }
@@ -215,6 +215,26 @@ void CodeGen::gen_ret() {
     append_inst("b " + exit_label);
 }
 
+void CodeGen::insert_phi(Instruction *ins) {
+    if (!ins->is_phi()) {
+        return;
+    }
+    auto* phi = static_cast<PhiInst*>(ins);
+    for (int i = 0; i < phi->get_operands().size() - 1; i += 2) {
+        if (static_cast<BasicBlock*>(phi->get_operand(i + 1)) == context.inst->get_parent()) {
+            auto type = phi->get_operand(i)->get_type();
+            if (type->is_integer_type()) {
+                load_to_greg(phi->get_operand(i), Reg::t(8));
+                store_from_greg(phi, Reg::t(8));
+            } else if (type->is_float_type()) {
+                load_to_freg(phi->get_operand(i), FReg::ft(8));
+                store_from_freg(phi, FReg::ft(8));
+            }
+            return;
+        }
+    }
+}
+
 void CodeGen::gen_br() {
     auto* branchInst = static_cast<BranchInst*>(context.inst);
     if (branchInst->is_cond_br()) {
@@ -222,73 +242,19 @@ void CodeGen::gen_br() {
         load_to_greg(branchInst->get_operand(0), Reg::t(0));
         auto* trueBB = static_cast<BasicBlock*>(branchInst->get_operand(1));
         auto* falseBB = static_cast<BasicBlock*>(branchInst->get_operand(2));
-                for (auto& instr : trueBB->get_instructions()) {
-            if (instr.is_phi()) {
-                auto* phiInst = static_cast<PhiInst*>(&instr);
-                for (int i = 1;i < phiInst->get_operands().size();i = i + 2) {
-                    if (static_cast<BasicBlock*>(phiInst->get_operand(i)) == context.inst->get_parent()) {
-                        if (phiInst->get_operand(i - 1)->get_type()->is_float_type()) {
-                            load_to_freg(phiInst->get_operand(i - 1), FReg::ft(8));
-                            store_from_freg(phiInst, FReg::ft(8));
-                        }
-                        else if (phiInst->get_operand(i - 1)->get_type()->is_integer_type()) {
-                            load_to_greg(phiInst->get_operand(i - 1), Reg::t(8));
-                            store_from_greg(phiInst, Reg::t(8));
-                        }
-                        break;
-                    }
-                }
-            }
-            else {
-                break;
-            }
+        for (auto& ins : trueBB->get_instructions()) {
+            insert_phi(&ins);
         }
-        for (auto& instr : falseBB->get_instructions()) {
-            if (instr.is_phi()) {
-                auto* phiInst = static_cast<PhiInst*>(&instr);
-                for (int i = 1;i < phiInst->get_operands().size();i = i + 2) {
-                    if (static_cast<BasicBlock*>(phiInst->get_operand(i)) == context.inst->get_parent()) {
-                        if (phiInst->get_operand(i - 1)->get_type()->is_float_type()) {
-                            load_to_freg(phiInst->get_operand(i - 1), FReg::ft(8));
-                            store_from_freg(phiInst, FReg::ft(8));
-                        }
-                        else if (phiInst->get_operand(i - 1)->get_type()->is_integer_type()) {
-                            load_to_greg(phiInst->get_operand(i - 1), Reg::t(8));
-                            store_from_greg(phiInst, Reg::t(8));
-                        }
-                        break;
-                    }
-                }
-            }
-            else {
-                break;
-            }
+        for (auto& ins : falseBB->get_instructions()) {
+            insert_phi(&ins);
         }
         append_inst("bstrpick.d $t1, $t0, 0, 0");
         append_inst("bnez", {Reg::t(1).print(), label_name(trueBB)});
         append_inst("b " + label_name(falseBB));
     } else {
         auto* branchBB = static_cast<BasicBlock*>(branchInst->get_operand(0));
-                for (auto& instr : branchBB->get_instructions()) {
-            if (instr.is_phi()) {
-                auto* phiInst = static_cast<PhiInst*>(&instr);
-                for (int i = 1;i < phiInst->get_operands().size();i = i + 2) {
-                    if (static_cast<BasicBlock*>(phiInst->get_operand(i)) == context.inst->get_parent()) {
-                        if (phiInst->get_operand(i - 1)->get_type()->is_float_type()) {
-                            load_to_freg(phiInst->get_operand(i - 1), FReg::ft(8));
-                            store_from_freg(phiInst, FReg::ft(8));
-                        }
-                        else if (phiInst->get_operand(i - 1)->get_type()->is_integer_type()) {
-                            load_to_greg(phiInst->get_operand(i - 1), Reg::t(8));
-                            store_from_greg(phiInst, Reg::t(8));
-                        }
-                        break;
-                    }
-                }
-            }
-            else {
-                break;
-            }
+        for (auto& ins : branchBB->get_instructions()) {
+            insert_phi(&ins);
         }
         append_inst("b " + label_name(branchBB));
     }
@@ -516,8 +482,8 @@ void CodeGen::gen_sitofp() {
     // DONE: 整数转向浮点数
     auto itfInst = static_cast<SiToFpInst*>(context.inst);
     load_to_greg(itfInst->get_operand(0), Reg::t(0));
-    append_inst("movgr2fr.w $ft0, $t0");    // Move to float register
-    append_inst("ffint.s.w $ft1, $ft0");    // Convert to float
+    append_inst("movgr2fr.w $ft0, $t0");  // Move to float register
+    append_inst("ffint.s.w $ft1, $ft0");  // Convert to float
     store_from_freg(itfInst, FReg::ft(1));
 }
 
@@ -585,11 +551,11 @@ void CodeGen::run() {
 
             for (auto& bb : func.get_basic_blocks()) {
                 append_inst(label_name(&bb), ASMInstruction::Label);
-                for (auto& instr : bb.get_instructions()) {
+                for (auto& ins : bb.get_instructions()) {
                     // For debug
-                    append_inst(instr.print(), ASMInstruction::Comment);
-                    context.inst = &instr;  // 更新 context
-                    switch (instr.get_instr_type()) {
+                    append_inst(ins.print(), ASMInstruction::Comment);
+                    context.inst = &ins;  // 更新 context
+                    switch (ins.get_instr_type()) {
                         case Instruction::ret:
                             gen_ret();
                             break;
