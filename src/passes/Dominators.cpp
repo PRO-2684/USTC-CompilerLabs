@@ -28,7 +28,7 @@ void Dominators::create_idom(Function* f) {
     bool flag = true;  // Is changed
     while (flag) {
         flag = false;
-        queue.push_back(entry);
+        queue.emplace_back(entry);
         processed.clear();
         while (!queue.empty()) {
             auto cur = queue.front();
@@ -38,7 +38,7 @@ void Dominators::create_idom(Function* f) {
             }
             for (auto succ : cur->get_succ_basic_blocks()) {
                 if (succ != nullptr) {
-                    queue.push_back(succ);
+                    queue.emplace_back(succ);
                 }
             }
             if (cur == entry) {
