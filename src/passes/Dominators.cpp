@@ -19,7 +19,7 @@ void Dominators::run() {
 }
 
 void Dominators::create_idom(Function* f) {
-    // FIXME: 分析得到 f 中各个基本块的 immediate dominator
+    // DONE: 分析得到 f 中各个基本块的 immediate dominator
     auto entry = f->get_entry_block();
     idom[entry] = entry;
     BasicBlock* newIdom = nullptr;
@@ -76,7 +76,7 @@ void Dominators::create_idom(Function* f) {
 }
 
 void Dominators::create_dominance_frontier(Function* f) {
-    // FIXME: 计算基本块的支配边界
+    // DONE: 计算基本块的支配边界
     BasicBlock* cur = nullptr;
     auto end = f->get_basic_blocks().end();
     for (auto iter = f->get_basic_blocks().begin(); iter != end; iter++) {
@@ -95,7 +95,7 @@ void Dominators::create_dominance_frontier(Function* f) {
 }
 
 void Dominators::create_dom_tree_succ(Function* f) {
-    // FIXME: 计算基本块的后继
+    // DONE: 计算基本块的后继
     auto end = f->get_basic_blocks().end();
     for (auto iter = f->get_basic_blocks().begin(); iter != end; iter++) {
         if (&*iter != f->get_entry_block()) {
@@ -105,7 +105,7 @@ void Dominators::create_dom_tree_succ(Function* f) {
 }
 
 bool Dominators::bb_same(BasicBlock* bb1, BasicBlock* bb2) {
-    // FIXME: 比较基本块是否相等
+    // DONE: 比较基本块是否相等
     if (bb1 == nullptr || bb2 == nullptr) {
         return bb2 == nullptr;
     }
@@ -121,7 +121,7 @@ bool Dominators::bb_same(BasicBlock* bb1, BasicBlock* bb2) {
 }
 
 bool Dominators::bb_dom(BasicBlock* bb1, BasicBlock* bb2) {
-    // FIXME: 比较基本块是否支配
+    // DONE: 比较基本块是否支配
     if (bb1 == nullptr || bb2 == nullptr) {
         return !(bb1 == nullptr);
     }

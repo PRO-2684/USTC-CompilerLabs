@@ -24,7 +24,7 @@ void Mem2Reg::run() {
 }
 
 void Mem2Reg::generate_phi() {
-    // FIXME:
+    // DONE:
     // 步骤一：找到活跃在多个 block 的全局名字集合，以及它们所属的 bb 块
     // 步骤二：从支配树获取支配边界信息，并在对应位置插入 Phi 指令
     std::set<BasicBlock*> pendingBlocks;           // 待处理的基本块
@@ -105,7 +105,7 @@ void Mem2Reg::generate_phi() {
 }
 
 void Mem2Reg::rename(BasicBlock* bb) {
-    // FIXME:
+    // DONE:
     // 步骤三：将 phi 指令作为 lval 的最新定值，lval 即是为局部变量 alloca 出的地址空间
     // 步骤四：用 lval 最新的定值替代对应的load指令
     // 步骤五：将 store 指令的 rval，也即被存入内存的值，作为 lval 的最新定值
